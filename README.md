@@ -1,2 +1,3 @@
-# norok.github.io
-Norok's Creations
+# norok.github.io / grifotografo
+
+Under development, powered by React + Vite

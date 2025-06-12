@@ -1,4 +1,4 @@
-name: Vite Github Pages Deployer
+name: Deploy app to github pages
 
 on:
   push:
@@ -17,25 +17,35 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
       - name: Install
-        run: yarn install
+        uses: bahmutov/npm-install@v1
       - name: Build
-        run: yarn build
+        run: npm run build
         env:
           NODE_ENV: production
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-files
+          path: ./dist
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    environment:
-      name: github-pages2
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-files
+          path: ./dist
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
